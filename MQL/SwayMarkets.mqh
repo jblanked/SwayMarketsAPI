@@ -17,6 +17,8 @@ class CSwayMarkets
       string account_name;
       
    public:
+      
+      datetime timeout;
    
       CSwayMarkets::CSwayMarkets()
       {
@@ -57,15 +59,18 @@ bool CSwayMarkets::login(const string userName,const string passWord,const strin
 {
    api.url = base_url + "login";
    
+   api.loader.Clear();
+   
    api.loader["username"] = userName;
    api.loader["domain"] = "default";
-   api.loader["password"] = passWord; //
+   api.loader["password"] = passWord; 
 
    username = userName; // set the username value to be used later on
    account_name = "default:" + accountName; // set the account name value to be used later on
    
-   if(api.POST(api.loader,10000,NULL)) { // if POST request is successful
+   if(api.POST(api.loader,10000,NULL,base_url)) { // if POST request is successful
     session_token = api.loader["sessionToken"].ToStr(); // set the session token as token provided in the response
+    timeout = TimeCurrent() + 1500; // 25 minutes from now
     return true; // return true
    }
    else return false; // otherwise return false
@@ -138,7 +143,19 @@ string CSwayMarkets::send_order(string order_code,string symbol,int quantity=100
    api.loader["side"] = side; // BUY or SELL
    api.loader["tif"] = "GTC"; // time in force/expiration of order
              
-   if(api.POST(api.loader,10000,NULL)) return api.loader["orderID"].ToStr(); // return the provided Order ID
+   if(api.POST(api.loader,10000,headers)) { 
+   
+      const string orderid =  api.loader["orderId"].ToStr(); 
+      
+      if(orderid == "") {
+         Print(api.result);
+         return "-1";
+      } 
+      else {
+         return orderid; // return the provided Order ID
+      }
+   } 
+   
    else return "-1"; // otherwise return -1/Error
 }
 
@@ -159,6 +176,9 @@ bool CSwayMarkets::close_position(string order_code,string symbol,string side,st
    api.loader["tif"] = "GTC"; // time in force/expiration of order
    api.loader["positionCode"] = position_code; // orderId returned when placed the initial trade 
              
-   if(api.POST(api.loader,10000,NULL)) return true; // return true is successful
-   else return false; // otherwise return false
+   if(api.POST(api.loader,10000,headers)) return true; // return true is successful
+   else {
+      Print(api.result);
+      return false; // otherwise return false
+   }
 }

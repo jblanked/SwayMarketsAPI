@@ -98,7 +98,7 @@ class SwayMarkets:
         }
         response = requests.post(ping_url, headers=headers, json=order_data)
         if response.status_code == 200:
-            return response.json()["orderID"]
+            return response.json()["orderId"]
         elif response.status_code == 409:
             return "OrderID already exists"
         else:

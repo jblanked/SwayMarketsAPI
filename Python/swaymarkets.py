@@ -229,6 +229,7 @@ class SwayMarkets:
                             "averagePrice": averagePrice,
                         }
                     )
+                history.reverse()
                 return history
         else:
             return {"error": f"GET request failed, status code {response.status_code}"}

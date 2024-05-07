@@ -146,3 +146,89 @@ class SwayMarkets:
             return True
         else:
             return False
+
+    def opened_orders(self):
+        url = f"{self.base_url}accounts/{self.account_name}/positions"
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": f"DXAPI {self.session_token}",
+        }
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            orders = list(data["positions"])
+            opened_orders = []
+            if len(orders) != 0:
+                for order in orders:
+                    account = order.get("account", "")
+                    version = order.get("version", "")
+                    symbol = order.get("symbol", "")
+                    quantity = order.get("quantity", "")
+                    side = order.get("side", "")
+                    position_code = order.get("positionCode", "")
+                    openTime = order.get("openTime", "")
+                    openPrice = order.get("openPrice", "")
+                    lastUpdateTime = order.get("lastUpdateTime", "")
+
+                    opened_orders.append(
+                        {
+                            "account": account,
+                            "version": version,
+                            "symbol": symbol,
+                            "quantity": quantity,
+                            "side": side,
+                            "positionCode": position_code,
+                            "openTime": openTime,
+                            "openPrice": openPrice,
+                            "lastUpdateTime": lastUpdateTime,
+                        }
+                    )
+                return opened_orders
+        else:
+            return {"error": f"GET request failed, status code {response.status_code}"}
+
+    def history_orders(self):
+        url = f"{self.base_url}accounts/{self.account_name}/orders/history"
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": f"DXAPI {self.session_token}",
+        }
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            orders = data["orders"]
+            history = []
+            if len(orders) != 0:
+                for order in orders:
+                    account = order.get("account", "")
+                    version = order.get("version", "")
+                    orderId = order.get("orderId", "")
+                    type = order.get("type", "")
+                    instrument = order.get("instrument", "")
+                    side = order.get("side", "")
+                    transactionTime = order.get("transactionTime", "")
+                    legs = order.get("legs", [])
+                    leg = legs[0]  # get first leg only
+                    positionCode = leg.get("positionCode", "")
+                    quantity = leg.get("quantity", "")
+                    averagePrice = leg.get("averagePrice", "")
+
+                    history.append(
+                        {
+                            "account": account,
+                            "version": version,
+                            "orderId": orderId,
+                            "type": type,
+                            "instrument": instrument,
+                            "side": side,
+                            "transactionTime": transactionTime,
+                            "positionCode": positionCode,
+                            "quantity": quantity,
+                            "averagePrice": averagePrice,
+                        }
+                    )
+                return history
+        else:
+            return {"error": f"GET request failed, status code {response.status_code}"}

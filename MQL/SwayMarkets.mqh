@@ -83,7 +83,7 @@ bool CSwayMarkets::logout(void)
    // required headers
    const string headers = "Content-Type: application/json" + "\r\n" + "Accept:" + "application/json" "\r\n" + "Authorization:" "DXAPI " + session_token;
 
-   if(api.POST(10000,headers)) return true; // if successful return true
+   if(api.POST(10000,headers,base_url)) return true; // if successful return true
    else return false; // otherwise return false
 }
 
@@ -143,7 +143,7 @@ string CSwayMarkets::send_order(string order_code,string symbol,int quantity=100
    api.loader["side"] = side; // BUY or SELL
    api.loader["tif"] = "GTC"; // time in force/expiration of order
              
-   if(api.POST(api.loader,10000,headers)) { 
+   if(api.POST(api.loader,10000,headers,base_url)) { 
    
       const string orderid =  api.loader["orderId"].ToStr(); 
       
@@ -176,7 +176,7 @@ bool CSwayMarkets::close_position(string order_code,string symbol,string side,st
    api.loader["tif"] = "GTC"; // time in force/expiration of order
    api.loader["positionCode"] = position_code; // orderId returned when placed the initial trade 
              
-   if(api.POST(api.loader,10000,headers)) return true; // return true is successful
+   if(api.POST(api.loader,10000,headers,base_url)) return true; // return true is successful
    else {
       Print(api.result);
       return false; // otherwise return false

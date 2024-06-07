@@ -70,7 +70,7 @@ bool CSwayMarkets::login(const string userName,const string passWord,const strin
    
    if(api.POST(api.loader,10000,NULL,base_url)) { // if POST request is successful
     session_token = api.loader["sessionToken"].ToStr(); // set the session token as token provided in the response
-    timeout = TimeCurrent() + 1500; // 25 minutes from now
+    timeout = TimeCurrent() + 60; // 1 minute from now
     return true; // return true
    }
    else return false; // otherwise return false
@@ -122,7 +122,7 @@ bool CSwayMarkets::ping(void)
    // required headers
    const string headers = "Content-Type: application/json" + "\r\n" + "Accept:" + "application/json" "\r\n" + "Authorization:" "DXAPI " + session_token;
 
-   if(api.POST(10000,headers)) return true; // if successful return true
+   if(api.POST(10000,headers,base_url)) return true; // if successful return true
    else return false; // otherwise return false
 }
 
